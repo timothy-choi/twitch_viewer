@@ -27,10 +27,11 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProfileHeader(
-                profileImageUrl: profileImageUrl,
-                username: username,
-                description: description),
-            if (liveStreamUrl != null) ...[
+              profileImageUrl: profileImageUrl,
+              username: username,
+              description: description,
+            ),
+            if (liveStreamUrl != null && liveStreamUrl!.isNotEmpty) ...[
               const SizedBox(height: 20),
               LiveStreamSection(streamUrl: liveStreamUrl!),
             ],
@@ -70,12 +71,15 @@ class ProfileHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(username,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  username,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
-                Text(description,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
               ],
             ),
           ),
@@ -88,8 +92,7 @@ class ProfileHeader extends StatelessWidget {
 class LiveStreamSection extends StatelessWidget {
   final String streamUrl;
 
-  const LiveStreamSection({Key? key, required this.streamUrl})
-      : super(key: key);
+  const LiveStreamSection({Key? key, required this.streamUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,18 +103,35 @@ class LiveStreamSection extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Text('Live Stream',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              'Live Stream',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: Container(
-              color: Colors.black12,
-              child: Center(
-                child: Text(
-                  'Embed Live Stream Here',
-                  style: TextStyle(color: Colors.white),
-                ),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StreamPage(streamUrl: streamUrl),
+                  ),
+                );
+              },
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    color: Colors.black12,
+                    child: const Center(
+                      child: Text(
+                        'Tap to Watch Live Stream',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -134,14 +154,20 @@ class PreviousStreamsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Previous Streams',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'Previous Streams',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 10),
-          ...recordedStreams.map((stream) => RecordedStreamCard(
+          Column(
+            children: recordedStreams.map((stream) {
+              return RecordedStreamCard(
                 title: stream['title'] ?? 'Untitled',
                 thumbnailUrl: stream['thumbnailUrl'] ?? '',
                 streamUrl: stream['streamUrl'] ?? '',
-              )),
+              );
+            }).toList(),
+          ),
         ],
       ),
     );
@@ -165,18 +191,24 @@ class RecordedStreamCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        leading: Image.network(thumbnailUrl,
-            width: 80, height: 80, fit: BoxFit.cover),
+        leading: Image.network(
+          thumbnailUrl,
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+        ),
         title: Text(title),
-        onTap: () {
+        onTap: streamUrl.isNotEmpty
+            ? () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => StreamPage(streamUrl: streamUrl),
             ),
           );
-        },
+        }
+            : null,
       ),
     );
   }
- }
+}
