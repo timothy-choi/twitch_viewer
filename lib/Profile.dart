@@ -4,7 +4,7 @@ class ProfilePage extends StatelessWidget {
   final String profileImageUrl;
   final String username;
   final String description;
-  final String? liveStreamUrl;
+  final List<Map<String, String>> liveStreams; // Each live stream has a title and URL
   final List<Map<String, String>> recordedStreams;
 
   const ProfilePage({
@@ -12,7 +12,7 @@ class ProfilePage extends StatelessWidget {
     required this.profileImageUrl,
     required this.username,
     required this.description,
-    this.liveStreamUrl,
+    required this.liveStreams,
     required this.recordedStreams,
   }) : super(key: key);
 
@@ -31,9 +31,9 @@ class ProfilePage extends StatelessWidget {
               username: username,
               description: description,
             ),
-            if (liveStreamUrl != null && liveStreamUrl!.isNotEmpty) ...[
+            if (liveStreams.isNotEmpty) ...[
               const SizedBox(height: 20),
-              LiveStreamSection(streamUrl: liveStreamUrl!),
+              LiveStreamsSection(liveStreams: liveStreams),
             ],
             const SizedBox(height: 20),
             PreviousStreamsSection(recordedStreams: recordedStreams),
@@ -89,53 +89,61 @@ class ProfileHeader extends StatelessWidget {
   }
 }
 
-class LiveStreamSection extends StatelessWidget {
-  final String streamUrl;
+class LiveStreamsSection extends StatelessWidget {
+  final List<Map<String, String>> liveStreams;
 
-  const LiveStreamSection({Key? key, required this.streamUrl}) : super(key: key);
+  const LiveStreamsSection({Key? key, required this.liveStreams}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              'Live Stream',
+              'Live Streams',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StreamPage(streamUrl: streamUrl),
-                  ),
-                );
-              },
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    color: Colors.black12,
-                    child: const Center(
-                      child: Text(
-                        'Tap to Watch Live Stream',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          Column(
+            children: liveStreams.map((stream) {
+              final title = stream['title'] ?? 'Untitled Stream';
+              final url = stream['streamUrl'] ?? '';
+              return LiveStreamCard(title: title, streamUrl: url);
+            }).toList(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class LiveStreamCard extends StatelessWidget {
+  final String title;
+  final String streamUrl;
+
+  const LiveStreamCard({Key? key, required this.title, required this.streamUrl}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        title: Text(title),
+        subtitle: const Text('Tap to watch live'),
+        onTap: streamUrl.isNotEmpty
+            ? () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StreamPage(streamUrl: streamUrl),
+            ),
+          );
+        }
+            : null,
       ),
     );
   }
