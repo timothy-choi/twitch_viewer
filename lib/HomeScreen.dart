@@ -10,13 +10,13 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Twitch Viewer"),
       ),
-      body: StreamListWidget(),  // Custom widget to show a list of streams
+      body: StreamListWidget(),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index) {
-          // Handle tab switch to navigate to different screens
+          // add code to handle tab switch to navigate to different screens
         },
       ),
     );
@@ -24,7 +24,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class StreamListWidget extends StatelessWidget {
-  // Sample data for streams
+  //keep for now
   final List<Map<String, String>> streams = List.generate(10, (index) => {
     'streamTitle': 'Stream $index Title',
     'streamerName': 'Streamer $index',
@@ -35,9 +35,8 @@ class StreamListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: streams.length,  // Use the length of streams list
+      itemCount: streams.length,
       itemBuilder: (context, index) {
-        // Pass each stream's data to the StreamCard
         return StreamCard(
           streamTitle: streams[index]['streamTitle']!,
           streamerName: streams[index]['streamerName']!,
@@ -49,7 +48,6 @@ class StreamListWidget extends StatelessWidget {
   }
 }
 
-// StreamCard widget to display each stream preview
 class StreamCard extends StatelessWidget {
   final String streamTitle;
   final String streamerName;
@@ -72,7 +70,7 @@ class StreamCard extends StatelessWidget {
         title: Text(streamTitle),
         subtitle: Text(streamerName),
         onTap: () {
-          // Navigate to the live stream page on tap
+
           Navigator.push(
             context,
             MaterialPageRoute(
