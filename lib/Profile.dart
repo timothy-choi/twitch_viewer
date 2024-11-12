@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'StreamScreenPage.dart';
 
 class ProfilePage extends StatelessWidget {
   final String profileImageUrl;
@@ -112,7 +113,8 @@ class LiveStreamsSection extends StatelessWidget {
             children: liveStreams.map((stream) {
               final title = stream['title'] ?? 'Untitled Stream';
               final url = stream['streamUrl'] ?? '';
-              return LiveStreamCard(title: title, streamUrl: url);
+              final streamId = stream['streamId'] ??'';
+              return LiveStreamCard(title: title, streamUrl: url, streamId: streamId);
             }).toList(),
           ),
         ],
@@ -124,8 +126,9 @@ class LiveStreamsSection extends StatelessWidget {
 class LiveStreamCard extends StatelessWidget {
   final String title;
   final String streamUrl;
+  final String streamId;
 
-  const LiveStreamCard({Key? key, required this.title, required this.streamUrl}) : super(key: key);
+  const LiveStreamCard({Key? key, required this.title, required this.streamUrl, required this.streamId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +142,7 @@ class LiveStreamCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StreamPage(streamUrl: streamUrl),
+              builder: (context) => StreamPage(streamUrl: streamUrl, streamId: streamId, title: title, isLive: true),
             ),
           );
         }
@@ -173,6 +176,7 @@ class PreviousStreamsSection extends StatelessWidget {
                 title: stream['title'] ?? 'Untitled',
                 thumbnailUrl: stream['thumbnailUrl'] ?? '',
                 streamUrl: stream['streamUrl'] ?? '',
+                streamId: stream['streamId'] ?? ''
               );
             }).toList(),
           ),
@@ -186,12 +190,14 @@ class RecordedStreamCard extends StatelessWidget {
   final String title;
   final String thumbnailUrl;
   final String streamUrl;
+  final String streamId;
 
   const RecordedStreamCard({
     Key? key,
     required this.title,
     required this.thumbnailUrl,
     required this.streamUrl,
+    required this.streamId
   }) : super(key: key);
 
   @override
@@ -211,7 +217,7 @@ class RecordedStreamCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StreamPage(streamUrl: streamUrl),
+              builder: (context) => StreamPage(streamUrl: streamUrl, streamId: streamId, title: title, isLive: false),
             ),
           );
         }

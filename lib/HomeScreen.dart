@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'StreamScreenPage.dart';
 
 class HomeScreen extends StatelessWidget {
   final String title;
@@ -42,6 +43,7 @@ class StreamListWidget extends StatelessWidget {
           streamerName: streams[index]['streamerName']!,
           thumbnailUrl: streams[index]['thumbnailUrl']!,
           streamUrl: streams[index]['streamUrl']!,
+          streamId: streams[index]['streamId']!
         );
       },
     );
@@ -53,12 +55,14 @@ class StreamCard extends StatelessWidget {
   final String streamerName;
   final String thumbnailUrl;
   final String streamUrl;
+  final String streamId;
 
   const StreamCard({
     required this.streamTitle,
     required this.streamerName,
     required this.thumbnailUrl,
     required this.streamUrl,
+    required this.streamId
   });
 
   @override
@@ -74,7 +78,7 @@ class StreamCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StreamPage(streamUrl: streamUrl),
+              builder: (context) => StreamPage(streamId: streamId, streamUrl: streamUrl, title: streamTitle, isLive: true),
             ),
           );
         },
