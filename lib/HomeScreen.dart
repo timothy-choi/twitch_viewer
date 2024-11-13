@@ -5,19 +5,38 @@ class HomeScreen extends StatelessWidget {
   final String title;
 
   const HomeScreen({super.key, required this.title});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Twitch Viewer"),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48.0),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search live streams...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+          ),
+        ),
       ),
-      body: StreamListWidget(),
+      body: StreamListWidget(), // Unfiltered stream list
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index) {
-          // add code to handle tab switch to navigate to different screens
+          // Add code to handle tab switch to navigate to different screens
         },
       ),
     );
@@ -25,12 +44,12 @@ class HomeScreen extends StatelessWidget {
 }
 
 class StreamListWidget extends StatelessWidget {
-  //keep for now
   final List<Map<String, String>> streams = List.generate(10, (index) => {
     'streamTitle': 'Stream $index Title',
     'streamerName': 'Streamer $index',
     'thumbnailUrl': 'https://via.placeholder.com/150',  // Replace with actual image URLs if available
     'streamUrl': 'https://player.twitch.tv/?channel=streamername&parent=localhost',  // Replace with real Twitch URLs
+    'streamId': ' ',
   });
 
   @override
@@ -43,7 +62,7 @@ class StreamListWidget extends StatelessWidget {
           streamerName: streams[index]['streamerName']!,
           thumbnailUrl: streams[index]['thumbnailUrl']!,
           streamUrl: streams[index]['streamUrl']!,
-          streamId: streams[index]['streamId']!
+          streamId: streams[index]['streamId']!,
         );
       },
     );
@@ -62,7 +81,7 @@ class StreamCard extends StatelessWidget {
     required this.streamerName,
     required this.thumbnailUrl,
     required this.streamUrl,
-    required this.streamId
+    required this.streamId,
   });
 
   @override
@@ -74,7 +93,6 @@ class StreamCard extends StatelessWidget {
         title: Text(streamTitle),
         subtitle: Text(streamerName),
         onTap: () {
-
           Navigator.push(
             context,
             MaterialPageRoute(
