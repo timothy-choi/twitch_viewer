@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ApiService.dart';
 import 'StreamScreenPage.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -26,17 +27,20 @@ class HomeScreen extends StatelessWidget {
                 filled: true,
                 fillColor: Colors.white,
               ),
+              onSubmitted: (value) {
+
+              },
             ),
           ),
         ),
       ),
-      body: StreamListWidget(), // Unfiltered stream list
+      body: StreamListWidget(),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index) {
-          // Add code to handle tab switch to navigate to different screens
+
         },
       ),
     );
@@ -44,26 +48,35 @@ class HomeScreen extends StatelessWidget {
 }
 
 class StreamListWidget extends StatelessWidget {
-  final List<Map<String, String>> streams = List.generate(10, (index) => {
-    'streamTitle': 'Stream $index Title',
-    'streamerName': 'Streamer $index',
-    'thumbnailUrl': 'https://via.placeholder.com/150',  // Replace with actual image URLs if available
-    'streamUrl': 'https://player.twitch.tv/?channel=streamername&parent=localhost',  // Replace with real Twitch URLs
-    'streamId': ' ',
-  });
+  final ApiService apiService = ApiService();
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: streams.length,
-      itemBuilder: (context, index) {
-        return StreamCard(
-          streamTitle: streams[index]['streamTitle']!,
-          streamerName: streams[index]['streamerName']!,
-          thumbnailUrl: streams[index]['thumbnailUrl']!,
-          streamUrl: streams[index]['streamUrl']!,
-          streamId: streams[index]['streamId']!,
-        );
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: apiService.getLiveStreams(10),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("No live streams found"));
+        } else {
+          final liveStreams = snapshot.data!;
+          return ListView.builder(
+            itemCount: liveStreams.length,
+            itemBuilder: (context, index) {
+              final stream = liveStreams[index];
+              return StreamCard(
+                streamTitle: stream['title'] ?? 'No Title',
+                streamerName: stream['user_name'] ?? 'Unknown Streamer',
+                thumbnailUrl: stream['thumbnail_url']?.replaceAll('{width}', '150').replaceAll('{height}', '150') ?? '',
+                streamUrl: 'https://player.twitch.tv/?channel=${stream['user_name']}&parent=localhost',
+                streamId: stream['id'] ?? '',
+              );
+            },
+          );
+        }
       },
     );
   }
@@ -96,7 +109,12 @@ class StreamCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StreamPage(streamId: streamId, streamUrl: streamUrl, title: streamTitle, isLive: true),
+              builder: (context) => StreamPage(
+                streamId: streamId,
+                streamUrl: streamUrl,
+                title: streamTitle,
+                isLive: true,
+              ),
             ),
           );
         },
