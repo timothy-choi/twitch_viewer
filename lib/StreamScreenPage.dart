@@ -30,7 +30,7 @@ class _StreamPageState extends State<StreamPage> {
   }
 
   void _initializeVideoPlayer() {
-    _controller = VideoPlayerController.network(widget.streamUrl)
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.streamUrl))
       ..initialize().then((_) {
         setState(() {
           _isInitialized = true;
