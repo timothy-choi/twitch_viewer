@@ -7,6 +7,19 @@ class ApiService {
   final String clientId = dotenv.env['TWITCH_CLIENT_ID'] ?? '';
   final String accessToken = dotenv.env['TWITCH_ACCESS_TOKEN'] ?? '';
 
+  Future<List<Map<String, dynamic>>> getUserPreviousStreams(String username) async {
+    final streamsResponse = await http.get(Uri.parse('$baseUrl/recordedStreams/hostUsername/$username'));
+
+    if (streamsResponse.statusCode != 200) {
+      throw Exception('Failed to load users: ${streamsResponse.statusCode}');
+    }
+
+    final streams = jsonDecode(streamsResponse.body);
+
+    return streams.cast<Map<String, dynamic>>();
+  }
+
+
   Future<List<Map<String, dynamic>>> getUserLiveStreams(String username) async {
     final usersResponse = await http.get(Uri.parse('$baseUrl/users/username/$username'));
 
