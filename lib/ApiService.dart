@@ -7,6 +7,36 @@ class ApiService {
   final String clientId = dotenv.env['TWITCH_CLIENT_ID'] ?? '';
   final String accessToken = dotenv.env['TWITCH_ACCESS_TOKEN'] ?? '';
 
+  Future<List<Map<String, dynamic>>> getUserLiveStreams(String username) async {
+    final usersResponse = await http.get(Uri.parse('$baseUrl/users/username/$username'));
+
+    if (usersResponse.statusCode != 200) {
+      throw Exception('Failed to load users: ${usersResponse.statusCode}');
+    }
+
+    final dynamic users = jsonDecode(usersResponse.body);
+
+    final String? twitchUsername = users["twitchUsername"] as String?;
+
+    final Uri liveStreamUrl = Uri.parse("https://api.twitch.tv/helix/streams?user_login=$twitchUsername");
+
+    final liveStreamResponse = await http.get(
+      liveStreamUrl,
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Client-ID': clientId,
+      },
+    );
+
+    if (liveStreamResponse.statusCode != 200) {
+      throw Exception('Failed to load live streams: ${usersResponse.statusCode}');
+    }
+
+    final Map<String, dynamic> liveStreamData = jsonDecode(liveStreamResponse.body);
+
+    return liveStreamData["data"];
+  }
+
   Future<List<Map<String, dynamic>>> getLiveStreams(int count) async {
     final usersResponse = await http.get(Uri.parse('$baseUrl/users/'));
 
