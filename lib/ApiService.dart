@@ -4,8 +4,25 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   final String baseUrl = "https://localhost:9004";
+  final String baseSearchUrl = "https:://localhost:9006";
   final String clientId = dotenv.env['TWITCH_CLIENT_ID'] ?? '';
   final String accessToken = dotenv.env['TWITCH_ACCESS_TOKEN'] ?? '';
+
+  Future<List<Map<String, dynamic>>> getUsersFromSearch(String query) async {
+    final searchResponse = await http.get(Uri.parse('$baseSearchUrl/users/$query'));
+    final searchTwitchResponse = await http.get(Uri.parse('$baseSearchUrl/users/twitchUsername/$query'));
+
+    if (searchResponse.statusCode != 200 || searchTwitchResponse.statusCode != 200) {
+      throw Exception('Failed to load users: ${searchResponse.statusCode}');
+    }
+
+    final users = jsonDecode(searchResponse.body);
+    final twitchUsers = jsonDecode(searchTwitchResponse.body);
+
+    final allUsers = users + twitchUsers;
+
+    return allUsers.cast<Map<String, dynamic>>();
+  }
 
   Future<List<Map<String, dynamic>>> getUserPreviousStreams(String username) async {
     final streamsResponse = await http.get(Uri.parse('$baseUrl/recordedStreams/hostUsername/$username'));
